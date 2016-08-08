@@ -61,10 +61,32 @@ def transform(text):
     return mdObject.parseString(text)
 
 
+class Context(object):
+
+    def __init__(self):
+        self._things = {}
+
+    def count(self, name):
+        if name not in self._things:
+            self._things[name] = 0
+        self._things[name] += 1
+        return self._things[name]
+
+
+def render(text):
+
+    if isinstance(text, pp.ParseResults):
+        T = text # already transformed
+    else:
+        T = transform(text)
+
+    context = Context()
+    for t in T:
+        t.context = context
+    return '\n'.join([x.render() for x in T.asList()])
+
+
 def parse_file(name):
     with open(name, 'r') as f:
-        p = transform(f.read())
-
-    out = ''.join([x.render() for x in p.asList()])
-
-    return out
+        T = transform(f.read())
+    return render(T)

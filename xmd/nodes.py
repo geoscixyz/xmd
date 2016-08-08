@@ -12,7 +12,18 @@ class XmdNode(object):
         self.parse()
 
     def parse(self):
+        self.content = []
         pass
+
+    @property
+    def context(self):
+        return getattr(self, '_context', None)
+
+    @context.setter
+    def context(self, val):
+        for n in self.content:
+            n.context = val
+        self._context = val
 
 
 class Command(XmdNode):
@@ -40,10 +51,11 @@ class Sidenote(Command):
 class Figure(Command):
 
     def render(self):
+        fignum = self.context.count(self.__class__.__name__)
         src = self.args[0].strip('"')
         inner = '    \n'.join([x.render() for x in self.content])
         inner = inner.strip('<p>').strip('</p>')
-        o = '<div class="figure"><img src="{src}"><div class="caption"><strong>Figure:</strong> {html}</div></div>'.format(src=src, html=inner)
+        o = '<div class="figure"><img src="{src}"><div class="caption"><strong>Figure {num}:</strong> {html}</div></div>'.format(num=fignum, src=src, html=inner)
         return o
 
 
