@@ -57,13 +57,13 @@ text_block = pp.Group(
 mdObject << pp.ZeroOrMore(pp.MatchFirst([Command, injector, text_block]))
 
 
-def parse(text):
+def transform(text):
     return mdObject.parseString(text)
 
 
 def parse_file(name):
     with open(name, 'r') as f:
-        p = parse(f.read())
+        p = transform(f.read())
 
     out = ''.join([x.render() for x in p.asList()])
 
