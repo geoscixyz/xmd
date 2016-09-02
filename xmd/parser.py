@@ -17,25 +17,35 @@ def recurse(s, b, c):
     return [out]
 
 
-varName = pp.Combine(
+variable_name = pp.Combine(
     pp.Word(pp.alphas + '_', exact=1) +
     pp.ZeroOrMore(pp.Word(pp.alphanums + '_', exact=1))
 )
 
-kwarg = pp.Group(
-    varName + pp.Suppress('=') + pp.Word(pp.alphas)
-).setParseAction(createKwarg)
+arg_string = pp.Group(
+    pp.Suppress(pp.Word("'") | pp.Word('"')) +
+    # pp.Word(pp.alphanums + '._-') +
+    pp.Word("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&()*+,-./:;<=>?@[\]^_`{|}~ ") +
+    pp.Suppress(pp.Word("'") | pp.Word('"'))
+)
 
 arg = pp.Group(
-    pp.Word(pp.alphanums + '"/._-')
+    pp.Word(pp.alphanums + '"\'/._-')
 ).setParseAction(createArg)
 
+kwarg = pp.Group(
+    variable_name + pp.Suppress('=') + pp.Word(pp.alphas)
+).setParseAction(createKwarg)
+
 command = (
-    pp.Suppress(">") + varName +
+    pp.Suppress(">") + variable_name +
     pp.Group(pp.Optional(
-        pp.Suppress('(') +
-        pp.Optional(pp.delimitedList(arg)) +
-        pp.Suppress(')')
+        # pp.Suppress('(') +
+        # pp.delimitedList(arg) +
+        # pp.Suppress(')')
+        pp.originalTextFor(
+            pp.nestedExpr(opener='(', closer=')')
+        )
     ))
 )
 

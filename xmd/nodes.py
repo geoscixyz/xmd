@@ -1,5 +1,11 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+from future.utils import with_metaclass
 import markdown
-import mdx_math
+from . import mdx_math
 
 
 class Context(object):
@@ -35,6 +41,9 @@ class XmdNode(object):
             n.context = val
         self._context = val
 
+    def parseArguments(self):
+        print(self.args)
+
 
 class Command(XmdNode):
 
@@ -60,6 +69,7 @@ class Sidenote(Command):
 class Figure(Command):
 
     def render(self):
+        self.parseArguments()
         fignum = self.context.count(self.__class__.__name__)
         src = self.args[0].strip('"')
         inner = '    \n'.join([x.render() for x in self.content])
@@ -81,7 +91,6 @@ class Markdown(XmdNode):
         return markdown.markdown(self.raw[0][0], extensions=[
             mdx_math.makeExtension(enable_dollar_delimiter=True)
         ])
-
 
 
 def chooseCommand(s, loc, raw):
