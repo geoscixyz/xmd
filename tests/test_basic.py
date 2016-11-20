@@ -19,9 +19,11 @@ Simple paragraph.
 
 figures = """
 
-[>figure('a_figure.png', numbered=True, a=(1,))]{the figure caption}
+[>figure('a_figure.png', numbered=True)]{the figure caption}
 
 """
+
+weird = "\r\n## DC resistivity \r\n  [>sidenote]{\r\n[>figure(https://raw.githubusercontent.com/simpeg/tle-finitevolume/master/images/DCSurvey.png)]{\r\n        Setup of a DC resistivity survey.\r\n    }\r\n}\r\n\r\n\r\nDC resistivity surveys obtain"
 
 
 class Basic(unittest.TestCase):
@@ -47,9 +49,15 @@ class Basic(unittest.TestCase):
             assert '<{}>'.format(tag) in render
             assert '</{}>'.format(tag) in render
 
-    def test_figures(self):
-        render = xmd.render(figures)
+    # def test_figures(self):
+    #     render = xmd.render(figures)
+    #     print(render)
+
+
+    def test_returns(self):
+        render = xmd.render(weird)
         print(render)
+
 
 
 

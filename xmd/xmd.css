@@ -1,0 +1,28 @@
+.xmd-container{
+  position: relative;
+  width: calc(100% - 250px);
+}
+
+.sidenote{
+  position:absolute;
+  left: calc(100% + 15px);
+  width: 230px;
+  margin-top: -30px;
+  font-size: 13px;
+  color: #aaa;
+  font-family: "Helvetica";
+}
+
+.figure{
+  margin: 15px 0 30px 0;
+}
+
+.figure img{
+  width:100%;
+}
+
+.figure .caption{
+  margin-top:15px;
+  text-align: center;
+  color: #aaa;
+}

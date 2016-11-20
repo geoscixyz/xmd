@@ -42,7 +42,11 @@ class XmdNode(object):
         self._context = val
 
     def parseArguments(self):
-        print(self.args)
+        # print(self.args)
+        inner = self.args[0].strip('(').strip(')')
+        args = [_.strip() for _ in inner.split(',')]
+        # print(args)
+        return args
 
 
 class Command(XmdNode):
@@ -69,16 +73,16 @@ class Sidenote(Command):
 class Figure(Command):
 
     def render(self):
-        self.parseArguments()
+        args = self.parseArguments()
         fignum = self.context.count(self.__class__.__name__)
-        src = self.args[0].strip('"')
+        src = args[0].strip('"').strip("'")
         inner = '    \n'.join([x.render() for x in self.content])
         inner = inner.strip('<p>').strip('</p>')
         html = (
             '<div class="figure">'
             '<img src="{src}">'
             '<div class="caption">'
-            '<strong>Figure {num}:</strong>{html}'
+            '<strong>Figure {num}:</strong> {html}'
             '</div>'
             '</div>'
         )

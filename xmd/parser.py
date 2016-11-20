@@ -1,3 +1,4 @@
+import sys
 import pyparsing as pp
 import nodes
 
@@ -60,8 +61,25 @@ injector = pp.Group(
     pp.Suppress('{{') + pp.Word(pp.alphas) + pp.Suppress('}}')
 )
 
+unicodePrintables = u''.join(
+    unichr(c) for c in xrange(sys.maxunicode)
+    if not (
+        unichr(c).isspace() or
+        unichr(c) == '[' or
+        unichr(c) == ']'
+    )
+)
+
+chars = (
+    "0123456789"
+    "abcdefghijklmnopqrstuvwxyz"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "!\"#$%&'(){}*+,-./:;<=>?@\^_`|~ \r\n" +
+    unicodePrintables
+)
+
 text_block = pp.Group(
-    pp.OneOrMore(pp.Word("""0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&'(){}*+,-./:;<=>?@\^_`|~ \n"""))
+    pp.OneOrMore(pp.Word(chars))
 ).setParseAction(nodes.Markdown)
 
 mdObject << pp.ZeroOrMore(pp.MatchFirst([Command, injector, text_block]))
@@ -81,7 +99,8 @@ def render(text):
     context = nodes.Context()
     for t in T:
         t.context = context
-    return '\n'.join([x.render() for x in T.asList()])
+    out = '\n'.join([x.render() for x in T.asList()])
+    return u"""<div class="xmd-container">\n{}\n</div>""".format(out)
 
 
 def parse_file(name):

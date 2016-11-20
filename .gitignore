@@ -89,3 +89,4 @@ ENV/
 .ropeproject
 *.sublime-workspace
 *.sublime-project
+client_secret.json
