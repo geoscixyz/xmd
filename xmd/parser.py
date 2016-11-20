@@ -2,7 +2,7 @@ import sys
 import pyparsing as pp
 import nodes
 
-mdObject = pp.Forward()
+xmdObject = pp.Forward()
 
 
 def createKwarg(z):
@@ -14,7 +14,7 @@ def createArg(z):
 
 
 def recurse(s, b, c):
-    out = mdObject.parseString(s[c[0]+1: c[2]-1])
+    out = xmdObject.parseString(s[c[0]+1: c[2]-1])
     return [out]
 
 
@@ -25,7 +25,6 @@ variable_name = pp.Combine(
 
 arg_string = pp.Group(
     pp.Suppress(pp.Word("'") | pp.Word('"')) +
-    # pp.Word(pp.alphanums + '._-') +
     pp.Word("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&()*+,-./:;<=>?@[\]^_`{|}~ ") +
     pp.Suppress(pp.Word("'") | pp.Word('"'))
 )
@@ -39,19 +38,17 @@ kwarg = pp.Group(
 ).setParseAction(createKwarg)
 
 command = (
-    pp.Suppress(">") + variable_name +
+    variable_name +
     pp.Group(pp.Optional(
-        # pp.Suppress('(') +
-        # pp.delimitedList(arg) +
-        # pp.Suppress(')')
         pp.originalTextFor(
             pp.nestedExpr(opener='(', closer=')')
         )
     ))
-)
+).setParseAction(nodes.CommandArguments)
 
-Command = pp.Group(
-    pp.Suppress('[') + command + pp.Suppress(']') + pp.FollowedBy('{') +
+Command = (
+    pp.nestedExpr(opener='[>', closer=']', content=command) +
+    pp.FollowedBy('{') +
     pp.originalTextFor(
         pp.nestedExpr(opener='{', closer='}')
     ).setParseAction(recurse)
@@ -82,11 +79,11 @@ text_block = pp.Group(
     pp.OneOrMore(pp.Word(chars))
 ).setParseAction(nodes.Markdown)
 
-mdObject << pp.ZeroOrMore(pp.MatchFirst([Command, injector, text_block]))
+xmdObject << pp.ZeroOrMore(Command | injector | text_block)
 
 
 def transform(text):
-    return mdObject.parseString(text)
+    return xmdObject.parseString(text)
 
 
 def render(text):

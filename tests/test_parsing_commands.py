@@ -1,6 +1,6 @@
 from __future__ import print_function
 import unittest
-from xmd.parser import command
+from xmd.parser import command, Command
 from xmd.parser import variable_name
 import pyparsing as pp
 
@@ -80,6 +80,9 @@ class ParsingComponents(unittest.TestCase):
     #     print(arg_float.parseString("1.0eE02"))
     #     self.assertRaises(pp.ParseException, arg_float.parseString, "abc")
 
+    def test_Command(self):
+        t = Command.parseString('[>command]{hi}')
+        print(t)
 
 
 if __name__ == '__main__':

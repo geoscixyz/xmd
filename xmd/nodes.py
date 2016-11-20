@@ -22,9 +22,10 @@ class Context(object):
 
 class XmdNode(object):
 
-    def __init__(self, s, loc, raw):
-        self.loc = loc
-        self.raw = raw
+    def __init__(self, string, location, ppinput):
+        self.string = string
+        self.location = location
+        self.ppinput = ppinput
         self.parse()
 
     def parse(self):
@@ -43,18 +44,28 @@ class XmdNode(object):
 
     def parseArguments(self):
         # print(self.args)
-        inner = self.args[0].strip('(').strip(')')
+        inner = self.command.args[0].strip('(').strip(')')
         args = [_.strip() for _ in inner.split(',')]
         # print(args)
         return args
 
 
+class CommandArguments(object):
+    def __init__(self, ppinput):
+        # print('here', ppinput)
+        self.ppinput = ppinput
+        self.name = ppinput[0]
+        self.args = ppinput[1]
+
+    def __repr__(self):
+        return "<{name} #{n}>".format(name=self.name, n=len(self.args))
+
+
 class Command(XmdNode):
 
     def parse(self):
-        self.name = self.raw[0][0]
-        self.args = self.raw[0][1]
-        self.content = self.raw[0][2]
+        self.command = self.ppinput[0][0]
+        self.content = self.ppinput[1]
 
     def render(self):
         inner = '\n'.join([x.render() for x in self.content])
@@ -92,14 +103,16 @@ class Figure(Command):
 class Markdown(XmdNode):
 
     def render(self):
-        return markdown.markdown(self.raw[0][0], extensions=[
+        return markdown.markdown(self.ppinput[0][0], extensions=[
             mdx_math.makeExtension(enable_dollar_delimiter=True)
         ])
 
 
-def chooseCommand(s, loc, raw):
-    if raw[0][0] == 'sidenote':
-        return Sidenote(s, loc, raw)
-    if raw[0][0] == 'figure':
-        return Figure(s, loc, raw)
-    return Command(s, loc, raw)
+def chooseCommand(string, location, ppinput):
+    # ppinput = ppinput[0]
+    # print('r: ', ppinput[0][0])
+    if ppinput[0][0].name == 'sidenote':
+        return Sidenote(string, location, ppinput)
+    if ppinput[0][0].name == 'figure':
+        return Figure(string, location, ppinput)
+    return Command(string, location, ppinput)
